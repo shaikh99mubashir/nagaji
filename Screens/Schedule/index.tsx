@@ -166,7 +166,7 @@ function Schedule({ navigation, route }: any) {
             checkRouteClass.map((e: any, i: number) => {
               return {
                 ...e,
-                imageUrl: require('../../Assets/Images/student.png'),
+                imageUrl: require('../../Assets/Images/budak-hadis.png'),
               };
             });
           setUpcomingClass(
@@ -209,7 +209,7 @@ function Schedule({ navigation, route }: any) {
                 ) {
                   return {
                     ...e,
-                    imageUrl: require('../../Assets/Images/student.png'),
+                    imageUrl: require('../../Assets/Images/budak-hadis.png'),
                   };
                 } else {
                   return false;
@@ -570,8 +570,6 @@ function Schedule({ navigation, route }: any) {
   }
 
   const renderScheduleData = ({ item, index }: any): any => {
-    console.log("item",item);
-    
     let nowDate: Date = new Date();
     let date = nowDate.getDate();
     let month = nowDate.getMonth();
@@ -596,10 +594,8 @@ function Schedule({ navigation, route }: any) {
         style={{
           borderWidth: 1,
           borderColor: item.selected ? Theme.darkGray : 'silver',
-          // borderColor:  'silver',
           paddingHorizontal: 15,
           paddingVertical: 10,
-          // backgroundColor: item.selected ? 'silver' : 'silver',
           marginTop: 20,
           borderRadius: 10,
         }}>
@@ -625,7 +621,7 @@ function Schedule({ navigation, route }: any) {
                   justifyContent: 'center',
                   backgroundColor: Theme.darkGray,
                 }}>
-                <Image source={item.imageUrl} style={{ width: 35, height: 35 }} />
+                <Image source={item.imageUrl} resizeMode='contain' style={{ width: 43, height: 43 }} />
               </View>
               <View>
                 <Text style={styles.textType3}>
@@ -635,15 +631,15 @@ function Schedule({ navigation, route }: any) {
                   {item?.studentName}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 10, alignItems: "center" }}>
-                <Feather name="map-pin" size={18} color={'#298CFF'} />
-                  <Text style={[styles.textType3, { color: '#003E9C' }]}>
+                <Feather name="map-pin" size={18} color={Theme.darkGray} />
+                  <Text style={[styles.textType3, { color: Theme.darkGray }]}>
                     {item?.city}
                   </Text>
                 </View>
               </View>
             </View>
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={[styles.textType3, { color: '#003E9C', backgroundColor: '#298CFF33', paddingVertical: 5, paddingHorizontal: 30, borderRadius: 30 }]}>
+              <Text style={[styles.textType3, { color: Theme.darkGray, backgroundColor: Theme.jobticketBG, paddingVertical: 5, paddingHorizontal: 30, borderRadius: 30 }]}>
                 {item?.mode}
               </Text>
             </View>
@@ -654,21 +650,21 @@ function Schedule({ navigation, route }: any) {
         <View style={{ paddingVertical: 20, }}>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}>
-            <AntDesig name="copy1" size={20} color={'#298CFF'} />
+            <AntDesig name="copy1" size={20} color={Theme.darkGray} />
               <Text style={styles.textType3}>Subject</Text>
             </View>
             <Text style={[styles.textType1, { fontSize: 18 }]}> {item.subjectName ?? item?.subject_name}</Text>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}>
-            <AntDesig name="carryout" size={20} color={'#298CFF'} />
+            <AntDesig name="carryout" size={20} color={Theme.darkGray} />
               <Text style={styles.textType3}>Day</Text>
             </View>
             <Text style={[styles.textType1, { fontSize: 18 }]}>{convertDateDayFormat(item.date)}</Text>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}>
-            <AntDesig name="clockcircleo" size={20} color={'#298CFF'} />
+            <AntDesig name="clockcircleo" size={20} color={Theme.darkGray} />
               <Text style={styles.textType3}>Time</Text>
             </View>
             <Text style={[styles.textType1, { fontSize: 18 }]}>{startTime12Hour} - {endTime12Hour}
@@ -676,40 +672,19 @@ function Schedule({ navigation, route }: any) {
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 }}>
-              {/* <Image source={require('../../Assets/Images/level.png')} /> */}
-              <MaterialIcons name="schedule-send" size={20} color={'#298CFF'} />
+              <MaterialIcons name="schedule-send" size={20} color={Theme.darkGray} />
               <Text style={styles.textType3}>Status</Text>
             </View>
             <Text style={[styles.textType1, { fontSize: 18,textTransform:'capitalize' }]}>{item.status}
             </Text>
           </View>
         </View>
-
-        {/* <View style={{ marginTop: 10, flexDirection: 'row' }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: Theme.black,
-              fontWeight: '600',
-              textTransform: 'uppercase',
-            }}>
-            {item.subjectName ?? item?.subject_name}
-          </Text>
-        </View>
-
-        <Text style={{ color: Theme.gray, marginTop: 10 }}>
-          {convertDateDayFormat(item.date)}
-        </Text>
-        <Text style={{ color: Theme.gray }}>
-          {startTime12Hour} to {endTime12Hour}
-        </Text> */}
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-          {/* <Text style={{ color: Theme.gray, marginTop: 10 }}>{item.status}</Text> */}
           {item.status == 'Attended' ? (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -760,29 +735,6 @@ function Schedule({ navigation, route }: any) {
             )}
           </View>
         )}
-        {/* {item.selected && item.status == 'attended' && (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              width: '100%',
-              alignItems: 'center',
-              marginTop: 10,
-            }}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('AttendedDetails', item)}
-              style={{
-                backgroundColor: Theme.darkGray,
-                width: '48%',
-                padding: 10,
-                borderRadius: 10,
-              }}>
-              <Text style={{textAlign: 'center', fontSize: 14, color: 'white'}}>
-                View
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )} */}
       </TouchableOpacity>
     );
   };

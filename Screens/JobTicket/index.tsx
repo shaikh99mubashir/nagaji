@@ -15,6 +15,8 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
+
 import Header from '../../Component/Header';
 import { Theme } from '../../constant/theme';
 import CustomTabView from '../../Component/CustomTabView';

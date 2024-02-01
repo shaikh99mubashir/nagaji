@@ -156,7 +156,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       case 'incomplete':
                         return '#FF0000';
                       default:
-                        return '#298CFF33'; // Default background color if the status is not recognized
+                        return Theme.gray; // Default background color if the status is not recognized
                     }
                   })(),
                   paddingVertical: 5,
@@ -202,11 +202,11 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                   </Text>
                   <View
                     style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                    <Feather name="map-pin" size={18} color={'#298CFF'} />
+                    <Feather name="map-pin" size={18} color={Theme.darkGray} />
                     <Text
                       style={[
                         styles.textType3,
-                        { color: '#003E9C', textTransform: 'capitalize' },
+                        { color: Theme.darkGray, textTransform: 'capitalize' },
                       ]}>
                       {item?.city}
                     </Text>
@@ -217,8 +217,8 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                     style={[
                       styles.textType3,
                       {
-                        color: '#003E9C',
-                        backgroundColor: '#298CFF33',
+                        color: Theme.darkGray,
+                        backgroundColor: Theme.jobticketBG,
                         paddingVertical: 5,
                         paddingHorizontal: 30,
                         borderRadius: 30,
@@ -249,7 +249,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       flexDirection: 'row',
                       gap: 10,
                     }}>
-                    <AntDesign name="copy1" size={18} color={'#298CFF'} />
+                    <AntDesign name="copy1" size={18} color={Theme.darkGray} />
                     <Text style={styles.textType3}>Subject</Text>
                   </View>
                   <Text
@@ -274,7 +274,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       flexDirection: 'row',
                       gap: 10,
                     }}>
-                    <FontAwesome name="user-o" size={18} color={'#298CFF'} />
+                    <FontAwesome name="user-o" size={18} color={Theme.darkGray} />
                     <Text style={styles.textType3}>Student</Text>
                   </View>
                   <Text
@@ -299,7 +299,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       flexDirection: 'row',
                       gap: 10,
                     }}>
-                    <FontAwesome name="level-up" size={18} color={'#298CFF'} />
+                    <FontAwesome name="level-up" size={18} color={Theme.darkGray} />
                     <Text style={styles.textType3}>Level</Text>
                   </View>
                   <Text
@@ -315,7 +315,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 15 }}>
                 <View
                   style={{
-                    backgroundColor: '#E6F2FF',
+                    backgroundColor: Theme.jobticketBG,
                     paddingVertical: 10,
                     borderRadius: 10,
                   }}>
@@ -327,11 +327,11 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       gap: 10,
                       paddingHorizontal: 10,
                     }}>
-                    <AntDesign name="calendar" size={20} color={'#298CFF'} />
+                    <AntDesign name="calendar" size={20} color={Theme.darkGray} />
                     <Text
                       style={[
                         styles.textType3,
-                        { color: '#298CFF', textTransform: 'capitalize' },
+                        { color: Theme.darkGray, textTransform: 'capitalize' },
                       ]}>
                       {item?.classDate}
                     </Text>
@@ -339,7 +339,7 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                 </View>
                 <View
                   style={{
-                    backgroundColor: '#E6F2FF',
+                    backgroundColor: Theme.jobticketBG,
                     paddingVertical: 10,
                     borderRadius: 10,
                     paddingHorizontal: 10,
@@ -351,11 +351,11 @@ const AttendedClassRecords = ({navigation,route}:any) => {
                       flexDirection: 'row',
                       gap: 10,
                     }}>
-                    <AntDesign name="clockcircleo" size={20} color={'#298CFF'} />
+                    <AntDesign name="clockcircleo" size={20} color={Theme.darkGray} />
                     <Text
                       style={[
                         styles.textType3,
-                        { color: '#298CFF', textTransform: 'capitalize' },
+                        { color: Theme.darkGray, textTransform: 'capitalize' },
                       ]}>
                       {item?.totalTime} Hrs
                     </Text>

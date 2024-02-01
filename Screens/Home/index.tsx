@@ -1195,7 +1195,7 @@ function Home({ navigation, route }: any) {
                       {students?.length ? students?.length : '0'}
                     </Text>
                     <Image
-                      source={require('../../Assets/Images/studenticonCopy.png')}
+                      source={require('../../Assets/Images/Group220.png')}
                       resizeMode="contain"
                     />
                   </View>
@@ -1218,7 +1218,7 @@ function Home({ navigation, route }: any) {
                       marginVertical: 20,
                     }}>
                     <Image
-                      source={require('../../Assets/Images/ClockiconCopy.png')}
+                      source={require('../../Assets/Images/clock.png')}
                       resizeMode="contain"
                     />
                     <Image
