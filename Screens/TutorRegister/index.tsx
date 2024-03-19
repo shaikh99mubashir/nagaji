@@ -425,7 +425,7 @@ export default Signup;
 
 const styles = StyleSheet.create({
   container: {
-    autoFocus: true,
+    // autoFocus: trfdgdgue,
     // flex: 1,
     marginTop: 20,
   },
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#E5E5E5',
     flexShrink: 22,
-    autoFocus: true,
+    // autoFocus: true,
   },
   textType1: {
     fontWeight: '500',

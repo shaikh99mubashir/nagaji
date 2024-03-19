@@ -180,7 +180,7 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    autoFocus: true,
+    // autoFocus: true,
     // flex: 1,
     marginTop: 20,
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#E5E5E5',
     flexShrink: 22,
-    autoFocus: true,
+    // autoFocus: true,
   },
   textType1: {
     fontWeight: '500', fontSize: 24, color: Theme.Dune, fontFamily: 'Circular Std Book', lineHeight: 24,

@@ -1,5 +1,5 @@
 
 
-const Base_Uri = "https://sifututor.odits.co/new/"
+const Base_Uri = "https://nakanji.odits.co/"
 
 export {Base_Uri}

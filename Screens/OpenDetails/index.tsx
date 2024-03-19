@@ -30,7 +30,6 @@ const OpenDetails = ({ route, navigation }: any) => {
 
   const tutor = useContext(TutorDetailsContext);
   let { tutorDetails, updateTutorDetails } = tutor;
-  console.log('====================================tutorDetails', tutorDetails.status);
   const [loading, setLoading] = useState(false);
 
   // console.log(openDetailItem.comment, "comment")
@@ -48,11 +47,6 @@ const OpenDetails = ({ route, navigation }: any) => {
     // let id = data?.id
     let tutor_id = tutorData?.tutorID;
     let comment = openDetailItem.comment ? openDetailItem?.comment : null;
-    // console.log('idddddddddddddd',data.id)
-    console.log(subjectId, "subjectId")
-    console.log(ticketID, "ticketID")
-    console.log(tutor_id, "tutor_id")
-    console.log(comment, "comment")
 
     setLoading(true);
     axios
@@ -82,7 +76,6 @@ const OpenDetails = ({ route, navigation }: any) => {
         ToastAndroid.show('Internal Server Error', ToastAndroid.SHORT);
       });
   };
-  console.log('data=============>', data);
 
   return (
     <View style={{ backgroundColor: Theme.white, height: '100%' }}>
@@ -148,6 +141,9 @@ const OpenDetails = ({ route, navigation }: any) => {
           </View>
           <View style={{ marginVertical: 20 }}>
             <Text style={styles.textType1}>Details</Text>
+
+          
+
 
             <View
               style={{
@@ -270,10 +266,10 @@ const OpenDetails = ({ route, navigation }: any) => {
                     size={22}
                     color={Theme.darkGray}
                   />
-                  <Text style={styles.textType3}>Level</Text>
+                  <Text style={styles.textType3}>Package</Text>
                 </View>
                 <Text style={[styles.textType1, { fontSize: 18 }]}>
-                {data?.categoryName}
+                {data?.package}
                 </Text>
               </View>
               <View

@@ -10,7 +10,7 @@ const Theme = {
     // gray : "gray",
     gray : "#264552",
     // lightGray : "#DDE6ED",
-    lightGray : "#eee",
+    lightGray : "#f7f7f7",
     darkGray : "#33b884",
     Dune:"#333333",
     GhostWhite:'#F5F9FF',

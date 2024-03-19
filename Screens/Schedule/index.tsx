@@ -591,6 +591,7 @@ function Schedule({ navigation, route }: any) {
     return (
       <TouchableOpacity
         onPress={() => handleSelectPress(index, item)}
+        key={index}
         style={{
           borderWidth: 1,
           borderColor: item.selected ? Theme.darkGray : 'silver',
