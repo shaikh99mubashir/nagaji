@@ -106,7 +106,8 @@ function ClockIn({navigation, route}: any) {
                 ToastAndroid.show('No image selected', ToastAndroid.LONG);
                 return;
               }
-  
+              console.log("formData",formData);
+              
               setLoading(true);
   
               const response = await axios.post(`${Base_Uri}api/attendedClassClockInTwo`, formData, {
@@ -127,7 +128,7 @@ function ClockIn({navigation, route}: any) {
             } catch (error) {
               setLoading(false);
               console.log('Error in Axios request:', error);
-              ToastAndroid.show(`Error in handleClockOut: ${error}`, ToastAndroid.LONG);
+              ToastAndroid.show(`Error in handleClockin: ${error}`, ToastAndroid.LONG);
             }
           }
         });
@@ -137,7 +138,7 @@ function ClockIn({navigation, route}: any) {
       }
     } catch (permissionError) {
       console.log('Error requesting camera permission:', permissionError);
-      ToastAndroid.show(`Error in handleClockOut: ${permissionError}`, ToastAndroid.LONG);
+      ToastAndroid.show(`Error in handleClockIn: ${permissionError}`, ToastAndroid.LONG);
     }
   };
   
