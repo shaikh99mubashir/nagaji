@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -12,20 +12,21 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { Theme } from '../../constant/theme';
+import {Theme} from '../../constant/theme';
 import CustomDropDown from '../../Component/CustomDropDown';
 import Header from '../../Component/Header';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Base_Uri } from '../../constant/BaseUri';
+import {Base_Uri} from '../../constant/BaseUri';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StudentContext from '../../context/studentContext';
 import scheduleContext from '../../context/scheduleContext';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import TutorDetailsContext from '../../context/tutorDetailsContext';
 import CustomLoader from '../../Component/CustomLoader';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
-function AddClass({ navigation }: any) {
+function AddClass({navigation}: any) {
   const [student, setStudent] = useState([]);
   const [subject, setSubject] = useState([]);
 
@@ -42,8 +43,9 @@ function AddClass({ navigation }: any) {
   const [scheduledClasses, setScheduledClasses] = useState([]);
   const studentAndSubjectContext = useContext(StudentContext);
   const context = useContext(StudentContext);
-  const { students, subjects } = context;
-  const { updateStudent } = studentAndSubjectContext;
+  const {students, subjects} = context;
+  const {updateStudent} = studentAndSubjectContext;
+
   const [classes, setClasses] = useState<any>([
     {
       tutorID: tutorId,
@@ -59,14 +61,10 @@ function AddClass({ navigation }: any) {
     setClasses([]); // Reset classes to an empty array
   }, [selectedSubject]);
   const tutorDetailCont = useContext(TutorDetailsContext);
-  const { tutorDetails } = tutorDetailCont;
+  const {tutorDetails} = tutorDetailCont;
 
-  // console.log(tutorDetails, 'tutorDetails');
-
-  const [tutorStudents, setTutorStudents] = useState([]);
   var focus = useIsFocused();
   const getTutorStudents = async () => {
-    // console.log('runnning');
     setLoading(true);
     interface LoginAuth {
       status: Number;
@@ -75,19 +73,17 @@ function AddClass({ navigation }: any) {
     }
     const login: any = await AsyncStorage.getItem('loginAuth');
     let loginData: LoginAuth = JSON.parse(login);
-    let { tutorID } = loginData;
-    // console.log("tutorID",tutorID);
-    // console.log("tutorDetails?.tutorId",tutorDetails?.tutorId);
-
+    let {tutorID} = loginData;
     axios
       .get(`${Base_Uri}getTutorStudents/${tutorID}`)
-      .then(({ data }) => {
-        const { tutorStudents } = data;
+      .then(({data}) => {
+        const {tutorStudents} = data;
         // console.log(tutorStudents, 'tutorsStudents');
+        const activeStudents = tutorStudents.filter((tutorStudents:any) => tutorStudents.studentStatus === 'active');
         let myStudents =
-          tutorStudents &&
-          tutorStudents.length > 0 &&
-          tutorStudents.map((e: any, i: Number) => {
+          activeStudents &&
+          activeStudents.length > 0 &&
+          activeStudents.map((e: any, i: Number) => {
             if (e.studentName) {
               return {
                 ...e,
@@ -114,16 +110,15 @@ function AddClass({ navigation }: any) {
   useEffect(() => {
     getTutorStudents();
   }, [focus, tutorId]);
-
+  
   const getSubject = () => {
     setSelectedSubject('');
     setSubject([]);
-    // console.log('====================================selectedStudent?.studentID',selectedStudent?.studentID);
     axios
       .get(`${Base_Uri}api/getStudentSubjects/${selectedStudent?.studentID}`)
-      .then(({ data }) => {
-        let { studentSubjects } = data;
-        // console.log('studentSubjects', studentSubjects);
+      .then(({data}) => {
+        let {studentSubjects} = data;
+        console.log('studentSubjects', studentSubjects);
         let mySubject =
           studentSubjects &&
           studentSubjects.length > 0 &&
@@ -134,7 +129,12 @@ function AddClass({ navigation }: any) {
               id: e.id,
               remaining_classes: e.remaining_classes,
               classFrequency: e.classFrequency,
+              total_hours: e.total_hours,
+              reamining_hours: e.reamining_hours,
+              perHour: e.quantity,
             }));
+            // console.log("My subject",mySubject);
+            
         setSubject(mySubject);
       })
       .catch(error => {
@@ -148,25 +148,10 @@ function AddClass({ navigation }: any) {
 
     data = JSON.parse(data);
 
-    let { tutorID } = data;
+    let {tutorID} = data;
 
     setTutorId(tutorID);
   };
-
-  // const getStudents = async () => {
-  //   let myStudents =
-  //     students &&
-  //     students.length > 0 &&
-  //     students.map((e: any, i: Number) => {
-  //       if (e.studentName) {
-  //         return {
-  //           ...e,
-  //           subject: e.studentName,
-  //         };
-  //       }
-  //     });
-  //   setStudent(myStudents);
-  // };
 
   useEffect(() => {
     getTutorID();
@@ -177,13 +162,15 @@ function AddClass({ navigation }: any) {
       getSubject();
     }
   }, [selectedStudent]);
-
+  const MAX_CLASSES = selectedSubject?.remaining_classes;
+  const perHour = selectedSubject?.perHour;
   const onChange = (event: any, selectedDate: any) => {
     setShow(false);
     const currentDate = selectedDate;
     let hours = currentDate.getHours();
     let minutes = currentDate.getMinutes();
     let data;
+
     if (mode == 'date') {
       data = classes.map((e: any, i: Number) => {
         if (i == indexClicked) {
@@ -198,9 +185,15 @@ function AddClass({ navigation }: any) {
     } else if (mode == 'time' && clickedStartTime) {
       data = classes.map((e: any, i: Number) => {
         if (i == indexClicked) {
+          const start = new Date(currentDate); // Create a new Date object for the start time
+          
+          const end = new Date(start.getTime() + perHour * 60 * 60 * 1000); 
+          // const end = new Date(start.getTime() + (perHour * 60 * 60 * 1000)); 
           return {
             ...e,
-            startTime: currentDate,
+            // startTime: currentDate,
+            startTime: start,
+            endTime: end,
           };
         } else {
           return e;
@@ -218,7 +211,6 @@ function AddClass({ navigation }: any) {
         }
       });
     }
-
     setValue(currentDate);
     setClasses(data);
     setShow(false);
@@ -233,15 +225,28 @@ function AddClass({ navigation }: any) {
     setIndexClicked(index);
     setShow(true);
   };
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [apply, setApply] = useState(false);
+  const [cancel, setCancel] = useState(false);
+  const [classDeleteIndex, setClassDeleteIndex] = useState();
+  const handleFilterPress = (index: any) => {
+    setModalVisible(true);
+    setClassDeleteIndex(index);
+  };
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
   const [hideMoreClassesButton, setHideMoreClassesButton] = useState(true);
   const [noOfClasses, setNoOFClasses] = useState(0);
   // const MAX_CLASSES = selectedSubject?.remaining_classes || undefined;
-  const MAX_CLASSES = selectedSubject?.remaining_classes;
-  console.log("classes.length", classes.length, "selectedSubject?.remaining_classes", selectedSubject?.remaining_classes);
+
+  // console.log("classes.length", classes.length, "selectedSubject?.remaining_classes", selectedSubject?.remaining_classes);
   // useEffect(()=>{
   //   if (MAX_CLASSES == 0) {
   //     console.log("classes.length <= MAX_CLASSES - 1",classes.length <= MAX_CLASSES - 1);
-      
+
   //     setHideMoreClassesButton(classes.length <= MAX_CLASSES - 1);
   //   }
   //   else if(classes.length == MAX_CLASSES ){
@@ -251,10 +256,20 @@ function AddClass({ navigation }: any) {
   //     setHideMoreClassesButton(true)
   //   }
   // },[])
-  const renderClasses = ({ item, index }: any) => {
-    if (MAX_CLASSES <= 0 || MAX_CLASSES <= index ) {
-      return null; // Don't render the class
+
+  const renderClasses = ({item, index}: any) => {
+    if (MAX_CLASSES <= 0 || MAX_CLASSES <= index) {
+      return null;
     }
+
+    const calculateEndTime = (startTime: string) => {
+      const start = startTime !== '-' ? new Date(startTime) : new Date();
+      const end = new Date(start.getTime() + perHour * 60 * 60 * 1000); // Assuming perHour is defined somewhere
+      return end.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    };
+    const startTime = item?.startTime !== '-' ? item?.startTime : '00:00'; // Default start time
+    const endTimeFormatted = calculateEndTime(startTime);
+
     return (
       <View>
         <View
@@ -262,115 +277,137 @@ function AddClass({ navigation }: any) {
             flexDirection: 'row',
             width: '100%',
             justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: 20,
+            borderTopWidth: 1,
+            borderTopColor: '#ececec',
+            paddingTop: 15,
           }}>
           <Text
-            style={{
-              color: Theme.black,
-              fontSize: 14,
-              fontWeight: '700',
-              marginTop: 20,
-            }}>
-            Class {index + 1}
+              style={[styles.textType1, {fontSize: 18, fontWeight:'600'}]}>
+            Session {index + 1}
           </Text>
-          <TouchableOpacity onPress={() => deleteClass(index)}>
-            <Text
-              style={{
-                color: Theme.red,
-                fontSize: 14,
-                fontWeight: '700',
-                marginTop: 20,
-                marginRight: 5,
-              }}>
-              Delete
-            </Text>
+          <TouchableOpacity style={{paddingRight:15, }} onPress={() => handleFilterPress(index)}>
+            <Image
+              source={require('../../Assets/Images/delicon.png')}
+              resizeMode="contain"
+              style={{width: 20, height: 20,}}
+            />
           </TouchableOpacity>
         </View>
-        <View
-          style={{
-            // backgroundColor: Theme.lightGray,
-            padding: 10,
-            borderRadius: 10,
-            marginTop: 10,
-            borderWidth: 1,
-            borderColor: Theme.gray,
-          }}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={{ paddingVertical: 5 }}
-            onPress={() => setClassDate('date', index)}>
+        <View>
+          <Text
+            style={[styles.textType1, {fontSize: 16,marginTop: 10,fontWeight:'600'}]}
+            >
+            Date
+          </Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: Theme.lightGray,
+              padding: 20,
+              marginTop: 5,
+              borderRadius: 15,
+              
+            }}>
+            <Text style={{color: Theme.gray, fontSize: 16, fontWeight: '500', fontFamily:'Circular Std Medium'}}>
+              {item?.date !== '-' ? item?.date?.toString().slice(0, 15) : '-'}
+            </Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setClassDate('date', index)}>
+              <Image
+                source={require('../../Assets/Images/ScheduleIcon.png')}
+                style={{width: 20, height: 20}}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop:10,}}>
+          <View style={{width: '49%'}}>
+            <Text
+              style={[styles.textType1, {fontSize: 16}]}
+              >
+              Start Time
+            </Text>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                // backgroundColor: '#E6F2FF',
+                backgroundColor: Theme.lightGray,
+                padding: 20,
+                marginTop: 5,
+                borderRadius: 15,
               }}>
               <Text
-                style={{ color: Theme.gray, fontSize: 14, fontWeight: '500' }}>
-                Date
-              </Text>
-              <Text
-                style={{ color: Theme.black, fontSize: 12, fontWeight: '500' }}>
-                {item?.date !== '-' ? item?.date?.toString().slice(0, 15) : '-'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 10,
-              width: '100%',
-            }}>
-            <Text style={{ color: Theme.gray, fontSize: 14, fontWeight: '500' }}>
-              Start Time
-            </Text>
-
-            <TouchableOpacity
-              onPress={() => setClassDate('time', index, true)}
-              style={{ minWidth: 50, alignItems: 'flex-end' }}>
-              <Text
-                style={{ color: Theme.black, fontSize: 12, fontWeight: '500' }}>
+                style={{color: Theme.gray, fontSize: 16, fontWeight: '500', fontFamily:'Circular Std Medium',}}>
                 {item?.startTime !== '-'
                   ? new Date(item?.startTime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                  : '-'}
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '00:00 AM'}
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setClassDate('time', index, true)}>
+                <Image
+                  source={require('../../Assets/Images/ClockiconCopy.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 10,
-            }}>
-            <Text style={{ color: Theme.gray, fontSize: 14, fontWeight: '500' }}>
+
+          <View style={{width: '49%'}}>
+            <Text
+                style={[styles.textType1, {fontSize: 16,fontWeight:'600'}]}>
               End Time
             </Text>
-
-            <TouchableOpacity
-              onPress={() => setClassDate('time', index)}
-              style={{ minWidth: 50, alignItems: 'flex-end' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: Theme.lightGray,
+                padding: 20,
+                marginTop: 5,
+                borderRadius: 15,
+              }}>
               <Text
-                style={{ color: Theme.black, fontSize: 12, fontWeight: '500' }}>
-                {item?.endTime !== '-'
+                style={{color: Theme.gray, fontSize: 16, fontWeight: '500', fontFamily:'Circular Std Medium'}}>
+                {/* {item?.endTime !== '-'
                   ? new Date(item?.endTime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                  : '-'}
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '00:00 AM'} */}
+                {endTimeFormatted == 'Invalid Date'
+                  ? '00:00 AM'
+                  : endTimeFormatted}
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                // onPress={() => setClassDate('time', index)}
+              >
+                <Image
+                  source={require('../../Assets/Images/ClockiconCopy.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
     );
   };
 
-  const deleteClass = (index: Number) => {
+  const deleteClass = (index: any) => {
     let data: any =
       classes &&
       classes.length > 0 &&
@@ -379,6 +416,16 @@ function AddClass({ navigation }: any) {
       });
 
     setClasses(data);
+  };
+
+  const ApplyButton = async () => {
+    if (apply) {
+      deleteClass(classDeleteIndex);
+      handleCloseModal();
+    }
+  };
+  const CancelButton = () => {
+    handleCloseModal();
   };
 
   const addClass = () => {
@@ -391,12 +438,42 @@ function AddClass({ navigation }: any) {
       // date: new Date(),
       date: new Date(),
     };
-
-    setClasses([...classes, newClass]);
+    if (classes.length > 0) {
+      classes?.map((classesObject: any, classesIndex: number) => {
+        const currentTime = new Date();
+        const startTime = classesObject?.startTime;
+        if (startTime == '-') {
+          ToastAndroid.show(
+            `Please select both start time and end time for Class No ${
+              classesIndex + 1
+            }.`,
+            ToastAndroid.SHORT,
+          );
+          return;
+        }
+        setClasses([...classes, newClass]);
+      });
+    } else {
+      setClasses([...classes, newClass]);
+    }
   };
 
   const confirmClass = () => {
     setLoading(true);
+    if (classes.length > 0) {
+      classes?.map((classesObject: any, classesIndex: number) => {
+        const startTime = classesObject?.startTime;
+        if (startTime == '-') {
+          ToastAndroid.show(
+            `Please select both start time and end time for Class No ${
+              classesIndex + 1
+            }.`,
+            ToastAndroid.SHORT,
+          );
+          return;
+        }
+      });
+    }
 
     let classesToAdd: any = [...classes];
 
@@ -514,41 +591,39 @@ function AddClass({ navigation }: any) {
       .catch(error => {
         setLoading(false);
         console.log(error, 'error');
+        if (error.response) {
+          console.error('Server Response:', error.response.data);
+          console.error('Status Code:', error.response.status);
+          console.error('Headers:', error.response.headers);
+        }
         ToastAndroid.show(
-          'Sorry classes added unsuccessfull',
+          `Sorry classes added unsuccessfull ${error}`,
           ToastAndroid.SHORT,
         );
       });
   };
-  const showToast = (message: any) => {
-    ToastAndroid.show(message, ToastAndroid.SHORT);
-  };
-  const handleSubjectDropdownOpen = () => {
-    if (selectedStudent) {
-      // Open the subject dropdown or perform any action
-      // showToast('Subject dropdown opened.');
-    } else {
-      // Show an error message
-      showToast('Please select the student before you select the subject.');
-    }
-  };
+  // Get the name of the previous screen
+// const previousRouteName = navigation.getState().routes[navigation.getState().routes.length - 2]?.name;
 
-  // console.log(student, 'student');
+// console.log("Subject Add class", subject);
 
+  // console.log("Current Route Name:", currentRouteName);
   return (
     //   <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
     //     <ActivityIndicator size="large" color={Theme.black} />
     //   </View>
     // ) : (
-    <View style={{ flex: 1, backgroundColor: Theme.white }}>
+    <View style={{flex: 1, backgroundColor: Theme.white}}>
       <View>
         <Header title={'Add Class'} backBtn navigation={navigation} />
       </View>
 
       {student && student.length !== 0 ? (
         <>
-          <View style={{ padding: 20, flex: 1 }}>
-            <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+          <View style={{padding: 20, flex: 1}}>
+            <ScrollView
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={false}>
               <View>
                 <CustomDropDown
                   ddTitle={'Student'}
@@ -558,14 +633,14 @@ function AddClass({ navigation }: any) {
                     // backgroundColor: Theme.lightGray,
                     paddingVertical: 17,
                     borderColor: Theme.gray,
-                    borderWidth: 1,
+                    // borderWidth: 1,
                   }}
                   dropdownPlace={'Select Student'}
                   subject={student}
                   headingStyle={{
                     color: Theme.black,
-                    fontSize: 14,
-                    fontWeight: '700',
+                    fontSize: 16,
+                    fontWeight: '600',
                   }}
                 />
 
@@ -574,56 +649,57 @@ function AddClass({ navigation }: any) {
                     ddTitle={'Subject'}
                     selectedSubject={selectedSubject}
                     setSelectedSubject={setSelectedSubject}
-                    // setSelectedSubject={handleSubjectDropdownOpen}
                     dropdownContainerStyle={{
-                      // backgroundColor: Theme.lightGray,
                       paddingVertical: 17,
                       borderColor: Theme.gray,
-                      borderWidth: 1,
-                      // borderBottomWidth: 0,
+                      // borderWidth: 1,
                     }}
                     dropdownPlace={'Select Subject '}
                     subject={subject}
                     headingStyle={{
                       color: Theme.black,
-                      fontSize: 14,
-                      fontWeight: '700',
+                      fontSize: 16,
+                      fontWeight: '600',
                     }}
                   />
                 )}
               </View>
 
               {selectedSubject?.subject && (
-                <View style={{ marginVertical: 10 }}>
-                  <Text
-                    style={[styles.textType1, { fontSize: 16 }]}>
-                    Class Details
+                <View style={{marginVertical: 10}}>
+                  <Text style={[styles.textType1, {fontSize: 16,fontWeight:'600'}]}>
+                    Session Details
                   </Text>
                   <View
                     style={{
                       backgroundColor: Theme.lightGray,
-                      elevation: 2,
-                      paddingHorizontal: 10,
-                      paddingVertical: 12,
+                      // elevation: 2,
+                      // paddingHorizontal: 10,
+                      // paddingVertical: 12,
+                      padding:20,
+                      
                       borderRadius: 10,
                       marginVertical: 5,
                     }}>
-                    <Text style={styles.textType3}>
-                      {selectedSubject?.subject} Total classes are{' '}
-                      <Text style={{ fontWeight: '600' }}>{selectedSubject?.classFrequency}</Text>. You can schedule
-                      <Text style={{ fontWeight: '600' }}> {classes.length} / {MAX_CLASSES}  </Text>
+                    <Text style={[styles.textType3,{lineHeight:23,color:'gray'}]}>
+                      {selectedSubject?.subject} Total Session are{' '}
+                      <Text style={{fontWeight: '600'}}>
+                        {selectedSubject?.classFrequency}
+                      </Text>
+                      . You can schedule Your reamining Session are
+                      <Text style={{fontWeight: '600', fontFamily:'Circular Std Medium'}}>
+                        {' '}
+                        {classes.length} / {MAX_CLASSES}{' '}
+                      </Text>
+                      {/* <Text style={{ fontWeight: '600' }}> {selectedSubject?.reamining_hours}</Text> */}
                     </Text>
-
                   </View>
                 </View>
               )}
 
-
-          
-                <View style={{ marginBottom: 100 }}>
-                  <FlatList data={classes} renderItem={renderClasses} />
-                </View>
-        
+              <View style={{marginBottom: 100}}>
+                <FlatList data={classes} renderItem={renderClasses} />
+              </View>
             </ScrollView>
             {MAX_CLASSES > 0 && MAX_CLASSES > classes.length && (
               <View
@@ -647,10 +723,10 @@ function AddClass({ navigation }: any) {
                   <Text
                     style={{
                       textAlign: 'center',
-                      fontSize: 14,
+                      fontSize: 16,
                       color: Theme.white,
+                      fontFamily:'Circular Std Medium'
                     }}>
-                    {/* {classes.length > 0  ? 'Add More Classes' : 'Add Classes'} */}
                     {classes.length > 0 ? 'Add More Classes' : 'Add Classes'}
                   </Text>
                 </TouchableOpacity>
@@ -662,61 +738,133 @@ function AddClass({ navigation }: any) {
                 testID="dateTimePicker"
                 value={value}
                 mode={mode}
-                is24Hour={true}
+                // is24Hour={true}
                 onChange={onChange}
               />
             )}
           </View>
-          {MAX_CLASSES > 0 && MAX_CLASSES > classes.length && (
-          <View
-            style={{
-              width: '100%',
-              alignItems: 'center',
-              position: 'absolute',
-              bottom: 20,
-            }}>
-            <TouchableOpacity
-              onPress={() => confirmClass()}
+          {MAX_CLASSES > 0 && MAX_CLASSES >= classes.length && (
+            <View
               style={{
-                backgroundColor: Theme.darkGray,
-                padding: 15,
-                borderRadius: 10,
-                width: '90%',
-                opacity: classes.length > 0 ? 1 : 0.7,
-              }}
-              disabled={classes.length === 0}
-              >
-              <Text
-                style={{ textAlign: 'center', fontSize: 14, color: Theme.white }}>
-                Confirm Class
-              </Text>
-            </TouchableOpacity>
-          </View>
+                width: '100%',
+                alignItems: 'center',
+                position: 'absolute',
+                bottom: 20,
+              }}>
+              <TouchableOpacity
+                onPress={() => confirmClass()}
+                style={{
+                  backgroundColor: Theme.darkGray,
+                  padding: 15,
+                  borderRadius: 10,
+                  width: '90%',
+                  opacity: classes.length > 0 ? 1 : 0.7,
+                }}
+                disabled={classes.length === 0}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 16,
+                    color: Theme.white,
+                    fontFamily:'Circular Std Medium'
+                  }}>
+                  Confirm Class
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         </>
       ) : (
-        // <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-        //   <Text style={{color: 'black'}}> You have No Students</Text>
-        // </View>
-        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
           <Image
             source={require('../../Assets/Images/nsa.png')}
-            style={{ width: 300, height: 300 }}
+            style={{width: 300, height: 300}}
           />
         </View>
       )}
 
       <CustomLoader visible={loading} />
-      {/* <Modal visible={loading} animationType="fade" transparent={true}>
+      <Modal visible={modalVisible} animationType="fade" transparent={true}>
         <View
           style={{
             flex: 1,
             justifyContent: 'center',
             backgroundColor: 'rgba(0,0,0,0.5)',
           }}>
-          <ActivityIndicator size={'large'} color={Theme.darkGray} />
+          <View
+            style={[
+              styles.modalContainer,
+              {padding: 30, marginHorizontal: 40},
+            ]}>
+            <Text
+              style={{
+                color: Theme.darkGray,
+                fontSize: 18,
+                fontWeight: 'bold',
+                fontFamily: 'Circular Std Medium',
+              }}>
+              Remove this Class?
+            </Text>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                gap: 10,
+                marginTop: 20,
+                marginBottom: 20,
+              }}>
+              <TouchableOpacity
+                onPressIn={() => setCancel(true)}
+                onPressOut={() => setCancel(false)}
+                onPress={CancelButton}
+                activeOpacity={0.8}
+                style={{
+                  borderWidth: 1,
+                  paddingVertical: 5,
+                  borderRadius: 50,
+                  borderColor: Theme.lightGray,
+                  alignItems: 'center',
+                  width: 100,
+                  backgroundColor: cancel ? Theme.darkGray : 'white',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'Circular Std Medium',
+                    color: cancel ? 'white' : Theme.darkGray,
+                  }}>
+                  No
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPressIn={() => setApply(true)}
+                onPressOut={() => setApply(false)}
+                onPress={ApplyButton}
+                activeOpacity={0.8}
+                style={{
+                  borderWidth: 1,
+                  paddingVertical: 5,
+                  borderRadius: 50,
+                  borderColor: Theme.lightGray,
+                  alignItems: 'center',
+                  width: 100,
+                  backgroundColor: apply ? 'white' : Theme.darkGray,
+                }}>
+                <Text
+                  style={{
+                    color: apply ? Theme.darkGray : 'white',
+
+                    fontSize: 16,
+                    fontFamily: 'Circular Std Medium',
+                  }}>
+                  Yes
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </Modal> */}
+      </Modal>
     </View>
   );
 }
@@ -749,7 +897,32 @@ const styles = StyleSheet.create({
     color: Theme.Dune,
     fontWeight: '500',
     fontSize: 16,
-    fontFamily: 'Circular Std',
+    fontFamily: 'Circular Std Medium',
     fontStyle: 'normal',
+  },
+  modalContainer: {
+    // flex: 1,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderColor: Theme.gray,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+  },
+  modalText: {
+    color: 'black',
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+  },
+  closeButton: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: Theme.darkGray,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    paddingHorizontal: 10,
   },
 });
